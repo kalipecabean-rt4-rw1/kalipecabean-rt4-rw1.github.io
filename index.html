@@ -8,13 +8,13 @@
 </head>
 <body class="bg-gray-100 p-4">
 
-    <div class="container mx-auto max-w-md bg-white rounded-lg shadow-md">
+    <div class="container mx-auto max-w-md bg-white rounded-lg shadow-md relative">
         <div class="p-4 border-b">
             <h1 class="text-xl font-bold text-gray-800">Penerimaan & Belanja</h1>
             <p class="text-sm text-gray-500">Project POS RT RW</p>
         </div>
 
-        <div class="p-4 border-b">
+        <div class="sticky top-0 bg-white z-10 p-4 border-b shadow-sm">
             <input 
                 type="text" 
                 id="searchInput" 
@@ -53,13 +53,13 @@
         // --- FUNGSI UNTUK MEMBUAT DATA CONTOH (100 TRANSAKSI) ---
         function generateSampleData() {
             const data = [];
-            let currentSaldo = 2500000; // Saldo awal
+            let currentSaldo = 2500000;
             const descriptionsIn = ["Iuran Warga", "Sumbangan Acara 17an", "Donasi Pembangunan", "Sewa Fasilitas RT"];
             const descriptionsOut = ["Beli ATK Rapat", "Biaya Kebersihan Lingkungan", "Konsumsi Rapat Warga", "Perbaikan Lampu Jalan", "Fotokopi Undangan"];
             
             for (let i = 100; i > 0; i--) {
-                const isIncome = Math.random() > 0.4; // Peluang 60% pemasukan
-                const date = new Date(2025, 9, 25 - Math.floor(i / 5)); // Menghasilkan tanggal mundur
+                const isIncome = Math.random() > 0.4;
+                const date = new Date(2025, 9, 25 - Math.floor(i / 5));
                 date.setHours(Math.floor(Math.random() * 23));
                 date.setMinutes(Math.floor(Math.random() * 59));
                 
@@ -80,20 +80,17 @@
                     saldo: currentSaldo
                 });
             }
-            return data.reverse(); // Balik array agar tanggal terbaru di awal
+            return data.reverse();
         }
 
         // --- BAGIAN UTAMA SCRIPT ---
-        
-        // 1. Definisikan Variabel Global dan Sumber Data
         const allTransactions = generateSampleData();
-        let isDescending = true; // Urutan awal: Terbaru ke Terlama
+        let isDescending = true;
 
         const searchInput = document.getElementById('searchInput');
         const sortButton = document.getElementById('sortButton');
         const tableBody = document.getElementById('transactionTableBody');
 
-        // 2. Helper Function untuk Format Mata Uang
         const formatCurrency = (amount) => {
             return new Intl.NumberFormat('id-ID', { 
                 style: 'currency', 
@@ -102,9 +99,8 @@
             }).format(amount);
         };
 
-        // 3. Fungsi Utama untuk Menampilkan Data ke Tabel
         const renderTable = (transactions) => {
-            tableBody.innerHTML = ''; // Kosongkan tabel sebelum diisi data baru
+            tableBody.innerHTML = '';
 
             if (transactions.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
@@ -129,14 +125,13 @@
                     </td>
                     <td class="p-3 text-right text-gray-700">${formatCurrency(trx.saldo)}</td>
                     <td class="p-3 text-center">
-                        <a href="#" class="text-blue-500 hover:underline text-xs">Lihat Bukti</a>
+                        <a href="#" class="text-blue-500 hover-underline text-xs">Lihat Bukti</a>
                     </td>
                 `;
                 tableBody.appendChild(row);
             });
         };
 
-        // 4. Event Listeners untuk Filter dan Sort
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase();
             const filteredData = allTransactions.filter(trx => 
@@ -148,20 +143,15 @@
 
         sortButton.addEventListener('click', function() {
             isDescending = !isDescending;
-
             allTransactions.sort((a, b) => {
                 const dateA = new Date(a.tanggal);
                 const dateB = new Date(b.tanggal);
                 return isDescending ? dateB - dateA : dateA - dateB;
             });
-            
             this.textContent = `Urutkan: ${isDescending ? 'Terlama' : 'Terbaru'}`;
-            
-            // Setelah sorting, jalankan kembali filter dengan query yang ada
             searchInput.dispatchEvent(new Event('input'));
         });
 
-        // 5. Render Tabel Pertama Kali Saat Halaman Dimuat
         renderTable(allTransactions);
     });
 </script>
