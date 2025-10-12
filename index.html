@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutasi Rekening - POS RT RW</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+
+    <div class="container mx-auto max-w-md bg-white rounded-lg shadow-md">
+        <div class="p-4 border-b">
+            <h1 class="text-xl font-bold text-gray-800">Penerimaan & Belanja</h1>
+            <p class="text-sm text-gray-500">Project POS RT RW</p>
+        </div>
+
+        <div class="p-4 border-b">
+            <input 
+                type="text" 
+                id="searchInput" 
+                placeholder="Cari Keterangan atau No. Reff..." 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+            <button 
+                id="sortButton" 
+                class="w-full mt-2 px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+                Urutkan: Terlama
+            </button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="p-3 text-left font-semibold text-gray-600">Keterangan</th>
+                        <th class="p-3 text-right font-semibold text-gray-600">Mutasi</th>
+                        <th class="p-3 text-right font-semibold text-gray-600">Saldo</th>
+                        <th class="p-3 text-center font-semibold text-gray-600">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionTableBody" class="divide-y divide-gray-200">
+                    <tr data-date="2025-10-25 14:30:00">
+                        <td class="p-3">
+                            <p class="font-medium text-gray-800">Sumbangan Donatur</p>
+                            <p class="text-xs text-gray-500">2025-10-25 14:30:00</p>
+                            <p class="text-xs text-gray-400">REF-00125</p>
+                        </td>
+                        <td class="p-3 text-right">
+                            <span class="font-semibold text-green-600">+ Rp 250.000</span>
+                        </td>
+                        <td class="p-3 text-right text-gray-700">Rp 1.675.000</td>
+                        <td class="p-3 text-center">
+                            <a href="#" class="text-blue-500 hover:underline text-xs">Lihat Bukti</a>
+                        </td>
+                    </tr>
+                    <tr data-date="2025-10-24 10:05:12">
+                        <td class="p-3">
+                            <p class="font-medium text-gray-800">Pembelian ATK Rapat</p>
+                            <p class="text-xs text-gray-500">2025-10-24 10:05:12</p>
+                            <p class="text-xs text-gray-400">REF-00124</p>
+                        </td>
+                        <td class="p-3 text-right">
+                            <span class="font-semibold text-red-600">- Rp 75.000</span>
+                        </td>
+                        <td class="p-3 text-right text-gray-700">Rp 1.425.000</td>
+                        <td class="p-3 text-center">
+                            <a href="#" class="text-blue-500 hover:underline text-xs">Lihat Bukti</a>
+                        </td>
+                    </tr>
+                    <tr data-date="2025-10-23 20:15:45">
+                        <td class="p-3">
+                            <p class="font-medium text-gray-800">Iuran Warga Bulan Oktober</p>
+                            <p class="text-xs text-gray-500">2025-10-23 20:15:45</p>
+                            <p class="text-xs text-gray-400">REF-00123</p>
+                        </td>
+                        <td class="p-3 text-right">
+                            <span class="font-semibold text-green-600">+ Rp 500.000</span>
+                        </td>
+                        <td class="p-3 text-right text-gray-700">Rp 1.500.000</td>
+                        <td class="p-3 text-center">
+                            <a href="#" class="text-blue-500 hover:underline text-xs">Lihat Bukti</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const sortButton = document.getElementById('sortButton');
+        const tableBody = document.getElementById('transactionTableBody');
+        // Konversi NodeList ke Array agar bisa menggunakan method sort()
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        
+        let isDescending = true; // Status awal: data diurutkan dari terbaru (descending)
+
+        // --- FUNGSI FILTER PENCARIAN ---
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            
+            rows.forEach(row => {
+                const keterangan = row.querySelector('.font-medium').textContent.toLowerCase();
+                const noReff = row.querySelector('.text-gray-400').textContent.toLowerCase();
+                
+                // Tampilkan baris jika query cocok dengan keterangan atau No. Reff
+                if (keterangan.includes(query) || noReff.includes(query)) {
+                    row.style.display = ''; // Menampilkan kembali baris
+                } else {
+                    row.style.display = 'none'; // Menyembunyikan baris
+                }
+            });
+        });
+
+        // --- FUNGSI SORTIR TANGGAL ---
+        sortButton.addEventListener('click', function() {
+            // Balik urutan sorting
+            isDescending = !isDescending;
+
+            rows.sort((a, b) => {
+                const dateA = new Date(a.dataset.date);
+                const dateB = new Date(b.dataset.date);
+
+                if (isDescending) {
+                    return dateB - dateA; // Urutkan dari terbaru ke terlama
+                } else {
+                    return dateA - dateB; // Urutkan dari terlama ke terbaru
+                }
+            });
+
+            // Hapus semua baris dari tabel
+            tableBody.innerHTML = '';
+            
+            // Tambahkan kembali baris yang sudah diurutkan
+            rows.forEach(row => tableBody.appendChild(row));
+
+            // Update teks tombol
+            this.textContent = `Urutkan: ${isDescending ? 'Terlama' : 'Terbaru'}`;
+        });
+    });
+</script>
+
+</body>
+</html>
