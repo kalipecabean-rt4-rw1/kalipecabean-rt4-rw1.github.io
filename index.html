@@ -137,7 +137,7 @@
 
                 allTransactions = rawData.map(item => ({
                     tanggal: formatDate(item.TANGGAL), noReff: item['NO REFF'], keterangan: item.KETERANGAN,
-                    tipe: item.DEBET ? 'masuk' : 'keluar', jumlah: item.DEBET || item.KREDIT, saldo: item.SALDO
+                    tipe: item.DEBET ? 'keluar' : 'masuk', jumlah: item.DEBET || item.KREDIT, saldo: item.SALDO
                 }));
                 
                 allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
