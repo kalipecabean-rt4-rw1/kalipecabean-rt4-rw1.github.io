@@ -34,8 +34,8 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="p-3 text-left font-semibold text-gray-600">Keterangan</th>
-                        <th class="p-3 text-right font-semibold text-gray-600">Mutasi</th>
-                        <th class="p-3 text-right font-semibold text-gray-600">Saldo</th>
+                        <th class="p-3 text-right font-semibold text-gray-600 whitespace-nowrap">Mutasi</th>
+                        <th class="p-3 text-right font-semibold text-gray-600 whitespace-nowrap">Saldo</th>
                     </tr>
                 </thead>
                 <tbody id="transactionTableBody" class="divide-y divide-gray-200">
@@ -101,7 +101,6 @@
             tableBody.innerHTML = '';
 
             if (transactions.length === 0) {
-                 // PERUBAHAN 3: Colspan disesuaikan menjadi 3
                 tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
                 return;
             }
@@ -113,7 +112,6 @@
                 const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
                 const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
 
-                // --- PERUBAHAN 4: Struktur HTML untuk baris tabel diubah ---
                 row.innerHTML = `
                     <td class="p-3 align-top">
                         <p class="text-xs text-gray-500">${trx.tanggal}</p>
@@ -123,10 +121,10 @@
                             <a href="#" class="text-blue-500 hover:underline text-xs font-semibold">Lihat Bukti</a>
                         </div>
                     </td>
-                    <td class="p-3 text-right align-top">
+                    <td class="p-3 text-right align-top whitespace-nowrap">
                         <span class="font-semibold ${mutationClass}">${mutationPrefix} ${formatCurrency(trx.jumlah)}</span>
                     </td>
-                    <td class="p-3 text-right align-top">
+                    <td class="p-3 text-right align-top whitespace-nowrap">
                         <span class="text-gray-700">${formatCurrency(trx.saldo)}</span>
                     </td>
                 `;
