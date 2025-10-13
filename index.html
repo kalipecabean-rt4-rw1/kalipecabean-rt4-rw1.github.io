@@ -36,12 +36,11 @@
                         <th class="p-3 text-left font-semibold text-gray-600">Keterangan</th>
                         <th class="p-3 text-right font-semibold text-gray-600">Mutasi</th>
                         <th class="p-3 text-right font-semibold text-gray-600">Saldo</th>
-                        <th class="p-3 text-center font-semibold text-gray-600">Action</th>
                     </tr>
                 </thead>
                 <tbody id="transactionTableBody" class="divide-y divide-gray-200">
                     <tr>
-                        <td colspan="4" class="p-4 text-center text-gray-500">Memuat data...</td>
+                        <td colspan="3" class="p-4 text-center text-gray-500">Memuat data...</td>
                     </tr>
                 </tbody>
             </table>
@@ -51,7 +50,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        // --- FUNGSI UNTUK MEMBUAT DATA CONTOH (100 TRANSAKSI) ---
+        // --- FUNGSI DATA CONTOH (Tidak ada perubahan) ---
         function generateSampleData() {
             const data = [];
             let currentSaldo = 2500000;
@@ -84,7 +83,6 @@
             return data.reverse();
         }
 
-        // --- BAGIAN UTAMA SCRIPT (Tidak ada perubahan) ---
         const allTransactions = generateSampleData();
         let isDescending = true;
         const searchInput = document.getElementById('searchInput');
@@ -103,7 +101,8 @@
             tableBody.innerHTML = '';
 
             if (transactions.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
+                 // PERUBAHAN 3: Colspan disesuaikan menjadi 3
+                tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
                 return;
             }
 
@@ -114,24 +113,28 @@
                 const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
                 const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
 
+                // --- PERUBAHAN 4: Struktur HTML untuk baris tabel diubah ---
                 row.innerHTML = `
-                    <td class="p-3">
-                        <p class="font-medium text-gray-800">${trx.keterangan}</p>
+                    <td class="p-3 align-top">
                         <p class="text-xs text-gray-500">${trx.tanggal}</p>
+                        <p class="font-semibold text-gray-800">${trx.keterangan}</p>
                         <p class="text-xs text-gray-400">${trx.noReff}</p>
+                        <div class="mt-2">
+                            <a href="#" class="text-blue-500 hover:underline text-xs font-semibold">Lihat Bukti</a>
+                        </div>
                     </td>
-                    <td class="p-3 text-right">
+                    <td class="p-3 text-right align-top">
                         <span class="font-semibold ${mutationClass}">${mutationPrefix} ${formatCurrency(trx.jumlah)}</span>
                     </td>
-                    <td class="p-3 text-right text-gray-700">${formatCurrency(trx.saldo)}</td>
-                    <td class="p-3 text-center">
-                        <a href="#" class="text-blue-500 hover-underline text-xs">Lihat Bukti</a>
+                    <td class="p-3 text-right align-top">
+                        <span class="text-gray-700">${formatCurrency(trx.saldo)}</span>
                     </td>
                 `;
                 tableBody.appendChild(row);
             });
         };
 
+        // --- Bagian event listener tidak ada perubahan ---
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase();
             const filteredData = allTransactions.filter(trx => 
