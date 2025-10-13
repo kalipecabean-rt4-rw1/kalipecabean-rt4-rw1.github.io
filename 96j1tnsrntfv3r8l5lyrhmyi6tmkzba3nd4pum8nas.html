@@ -1,1 +1,50 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Halaman Terlindungi</title>
+  <style>
+    #content { display: none; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+  </style>
+</head>
+<body>
+
+<div id="login">
+  <h2>Masukkan Password</h2>
+  <input type="password" id="pwdInput" placeholder="Password" />
+  <button onclick="checkPassword()">Masuk</button>
+  <p id="errorMsg" style="color: red; display: none;">Password salah!</p>
+</div>
+
+<div id="content">
+  <h1>Selamat Datang!</h1>
+  <p>Anda telah berhasil masuk.</p>
+  <!-- Konten utama Anda di sini -->
+</div>
+
+<script>
+  const correctPassword = "rahasia123"; // Ganti dengan password Anda
+
+  function checkPassword() {
+    const input = document.getElementById("pwdInput").value;
+    const errorMsg = document.getElementById("errorMsg");
+
+    if (input === correctPassword) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("content").style.display = "block";
+    } else {
+      errorMsg.style.display = "block";
+    }
+  }
+
+  // Opsional: tekan Enter untuk submit
+  document.getElementById("pwdInput").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") checkPassword();
+  });
+</script>
+
+</body>
+</html>
