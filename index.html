@@ -38,7 +38,7 @@
                         <th class="p-3 text-right font-semibold text-gray-600 whitespace-nowrap">Saldo</th>
                     </tr>
                 </thead>
-                <tbody id="transactionTableBody" class="divide-y divide-gray-200">
+                <tbody id="transactionTableBody">
                     <tr>
                         <td colspan="3" class="p-4 text-center text-gray-500">Memuat data...</td>
                     </tr>
@@ -107,6 +107,12 @@
 
             transactions.forEach(trx => {
                 const row = document.createElement('tr');
+                
+                // --- PERUBAHAN 2: Menambahkan class untuk warna baris genap-ganjil ---
+                // 'odd:bg-white' -> Baris ganjil (1, 3, 5, ...) akan berwarna putih.
+                // 'even:bg-gray-50' -> Baris genap (2, 4, 6, ...) akan berwarna abu-abu muda.
+                row.className = 'odd:bg-white even:bg-gray-50';
+                
                 row.setAttribute('data-date', trx.tanggal);
 
                 const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
