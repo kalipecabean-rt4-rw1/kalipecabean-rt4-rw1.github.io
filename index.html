@@ -47,6 +47,7 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="p-3 text-center font-semibold text-gray-600">No.</th>
                         <th class="p-3 text-left font-semibold text-gray-600">Keterangan</th>
                         <th class="p-3 text-right font-semibold text-gray-600 whitespace-nowrap">Mutasi</th>
                         <th class="p-3 text-right font-semibold text-gray-600 whitespace-nowrap">Saldo</th>
@@ -85,19 +86,23 @@
         const delay = ms => new Promise(res => setTimeout(res, ms));
 
         // --- Fungsi untuk Merender Tabel (Instan) ---
-        // Digunakan untuk pencarian dan pengurutan agar responsif
         const renderTable = (transactions) => {
             tableBody.innerHTML = '';
             if (transactions.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
+                 // PERUBAHAN 2: Mengubah colspan menjadi 4
+                tableBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
                 return;
             }
-            transactions.forEach(trx => {
+            // PERUBAHAN 3: Menambahkan 'index' untuk penomoran
+            transactions.forEach((trx, index) => {
                 const row = document.createElement('tr');
                 row.className = 'odd:bg-white even:bg-slate-100';
                 const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
                 const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
+                // Format nomor dengan 4 digit (misal: 0001)
+                const formattedNumber = String(index + 1).padStart(4, '0');
                 row.innerHTML = `
+                    <td class="p-3 align-top text-center text-gray-500">${formattedNumber}</td>
                     <td class="p-3 align-top">
                         <p class="text-xs text-gray-500">${trx.tanggal}</p>
                         <p class="font-semibold text-gray-800">${trx.keterangan}</p>
@@ -112,10 +117,9 @@
 
         // --- Fungsi Utama untuk Mengambil dan Memproses Data ---
         async function loadData() {
-            // 1. Tampilkan indikator loading
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="3" class="p-8 text-center text-gray-500">
+                    <td colspan="4" class="p-8 text-center text-gray-500">
                         <div class="flex justify-center items-center space-x-2">
                             <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -133,27 +137,29 @@
 
                 allTransactions = rawData.map(item => ({
                     tanggal: formatDate(item.TANGGAL), noReff: item['NO REFF'], keterangan: item.KETERANGAN,
-                    tipe: item.DEBET ? 'keluar' : 'masuk', jumlah: item.DEBET || item.KREDIT, saldo: item.SALDO
+                    tipe: item.DEBET ? 'masuk' : 'keluar', jumlah: item.DEBET || item.KREDIT, saldo: item.SALDO
                 }));
                 
                 allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
                 
-                // 2. Kosongkan tabel sebelum render parsial
                 tableBody.innerHTML = '';
                 
                 if (allTransactions.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Tidak ada data transaksi.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Tidak ada data transaksi.</td></tr>';
                     return;
                 }
 
-                // 3. Render setiap baris dengan jeda (delay)
+                // PERUBAHAN 5: Menggunakan 'for...of' dengan index untuk penomoran
+                let index = 0;
                 for (const trx of allTransactions) {
                     const row = document.createElement('tr');
                     row.className = 'odd:bg-white even:bg-slate-100';
-                    row.style.opacity = '0'; // Set opacity awal ke 0 untuk animasi fade-in
+                    row.style.opacity = '0';
                     const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
                     const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
+                    const formattedNumber = String(index + 1).padStart(4, '0');
                     row.innerHTML = `
+                        <td class="p-3 align-top text-center text-gray-500">${formattedNumber}</td>
                         <td class="p-3 align-top">
                             <p class="text-xs text-gray-500">${trx.tanggal}</p>
                             <p class="font-semibold text-gray-800">${trx.keterangan}</p>
@@ -163,15 +169,15 @@
                         <td class="p-3 text-right align-top whitespace-nowrap"><span class="text-gray-700">${formatCurrency(trx.saldo)}</span></td>
                     `;
                     tableBody.appendChild(row);
-                    row.style.opacity = '1'; // Ubah opacity ke 1 untuk memicu transisi fade-in
+                    row.style.opacity = '1';
                     
-                    // Jeda sebelum menampilkan item berikutnya
-                    await delay(300); // Jeda 300 milidetik
+                    index++; // Naikkan index untuk baris berikutnya
+                    await delay(50); // Mengurangi delay agar lebih cepat
                 }
 
             } catch (error) {
                 console.error("Gagal mengambil atau memproses data:", error);
-                tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Gagal memuat data. Silakan coba lagi nanti.</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Gagal memuat data. Silakan coba lagi nanti.</td></tr>`;
             }
         }
 
@@ -182,7 +188,7 @@
                 trx.keterangan.toLowerCase().includes(query) || 
                 trx.noReff.toLowerCase().includes(query)
             );
-            renderTable(filteredData); // Gunakan render instan untuk pencarian
+            renderTable(filteredData);
         });
 
         sortButton.addEventListener('click', function() {
