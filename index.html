@@ -57,47 +57,31 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-
-        function generateSampleData() {
-            const data = [];
-            let currentSaldo = 2500000;
-            const descriptionsIn = ["Iuran Warga", "Sumbangan Acara 17an", "Donasi Pembangunan", "Sewa Fasilitas RT"];
-            const descriptionsOut = ["Beli ATK Rapat", "Biaya Kebersihan Lingkungan", "Konsumsi Rapat Warga", "Perbaikan Lampu Jalan", "Fotokopi Undangan"];
-            
-            for (let i = 100; i > 0; i--) {
-                const isIncome = Math.random() > 0.4;
-                const date = new Date(2025, 9, 25 - Math.floor(i / 5));
-                date.setHours(Math.floor(Math.random() * 23));
-                date.setMinutes(Math.floor(Math.random() * 59));
-                const amount = isIncome ? Math.floor(Math.random() * 20 + 1) * 25000 : Math.floor(Math.random() * 15 + 1) * 10000;
-                if (isIncome) { currentSaldo += amount; } else { currentSaldo -= amount; }
-                data.push({
-                    tanggal: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`,
-                    noReff: `REF-${String(1000 + i).padStart(5, '0')}`,
-                    keterangan: isIncome ? descriptionsIn[i % descriptionsIn.length] : descriptionsOut[i % descriptionsOut.length],
-                    tipe: isIncome ? 'masuk' : 'keluar',
-                    jumlah: amount,
-                    saldo: currentSaldo
-                });
-            }
-            // PERUBAHAN 1: Menghapus .reverse() agar fungsi ini hanya membuat data
-            return data;
-        }
-
-        const allTransactions = generateSampleData();
+        
+        let allTransactions = []; // Akan diisi oleh data dari AJAX
         let isDescending = true;
         const searchInput = document.getElementById('searchInput');
         const sortButton = document.getElementById('sortButton');
         const tableBody = document.getElementById('transactionTableBody');
         const sortIconDesc = document.getElementById('sortIconDesc');
         const sortIconAsc = document.getElementById('sortIconAsc');
+        
+        const dataUrl = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLj_mpeTgDxFPg5TntYsS0UUPtXoX7IG0G25RNyA6dMwifkG0hPI1HK3VRoKd7VhO8sRgF_ZHNHu7cSJjGKsOtu5MQWO2oYh9axj2ULfkzIjd_L2-SaaVj6ziW50FSaagihLqe7C0MCui7B4PQpADyXWxKqF2Drh3IHFLoifmzlGHSoHjW00sfT1si5Eq_iV0JwRYUcUc9CfBcHs4HOVtkkImGcZRQeh5wgF7JXoU8h-NWNFZKIK_1mAZjscZu_6kbbnZhFGc4rV6RSax-Xj1iyH6ioy6VyWcKptD5Xt&lib=MLLS5aBaAgAnNslygjriEtI_L-RvyYFNc';
 
-        // PERUBAHAN 2: Menambahkan pengurutan default secara eksplisit di sini
-        // Ini memastikan data SELALU diurutkan descending saat pertama kali dimuat
-        allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-
+        // --- Fungsi Helper ---
         const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 
+        const formatDate = (timestamp) => {
+            const date = new Date(timestamp);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        };
+
+        // --- Fungsi untuk Merender Tabel ---
         const renderTable = (transactions) => {
             tableBody.innerHTML = '';
             if (transactions.length === 0) {
@@ -107,7 +91,6 @@
             transactions.forEach(trx => {
                 const row = document.createElement('tr');
                 row.className = 'odd:bg-white even:bg-slate-100';
-                row.setAttribute('data-date', trx.tanggal);
                 const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
                 const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
                 row.innerHTML = `
@@ -115,7 +98,6 @@
                         <p class="text-xs text-gray-500">${trx.tanggal}</p>
                         <p class="font-semibold text-gray-800">${trx.keterangan}</p>
                         <p class="text-xs text-gray-400">${trx.noReff}</p>
-                        <div class="mt-2"><a href="#" class="text-blue-500 hover:underline text-xs font-semibold">Lihat Bukti</a></div>
                     </td>
                     <td class="p-3 text-right align-top whitespace-nowrap"><span class="font-semibold ${mutationClass}">${mutationPrefix} ${formatCurrency(trx.jumlah)}</span></td>
                     <td class="p-3 text-right align-top whitespace-nowrap"><span class="text-gray-700">${formatCurrency(trx.saldo)}</span></td>
@@ -124,9 +106,44 @@
             });
         };
 
+        // --- Fungsi Utama untuk Mengambil dan Memproses Data ---
+        async function loadData() {
+            try {
+                const response = await fetch(dataUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const rawData = await response.json();
+
+                // Transformasi data dari format JSON ke format yang dibutuhkan aplikasi
+                allTransactions = rawData.map(item => ({
+                    tanggal: formatDate(item.TANGGAL),
+                    noReff: item['NO REFF'],
+                    keterangan: item.KETERANGAN,
+                    tipe: item.DEBET ? 'masuk' : 'keluar',
+                    jumlah: item.DEBET || item.KREDIT,
+                    saldo: item.SALDO
+                }));
+                
+                // Urutkan data terbaru (descending) saat pertama kali dimuat
+                allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+                // Render tabel dengan data yang sudah diurutkan
+                renderTable(allTransactions);
+
+            } catch (error) {
+                console.error("Gagal mengambil atau memproses data:", error);
+                tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-red-500">Gagal memuat data. Silakan coba lagi nanti.</td></tr>';
+            }
+        }
+
+        // --- Event Listeners ---
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase();
-            const filteredData = allTransactions.filter(trx => trx.keterangan.toLowerCase().includes(query) || trx.noReff.toLowerCase().includes(query));
+            const filteredData = allTransactions.filter(trx => 
+                trx.keterangan.toLowerCase().includes(query) || 
+                trx.noReff.toLowerCase().includes(query)
+            );
             renderTable(filteredData);
         });
 
@@ -147,11 +164,13 @@
                 sortIconAsc.classList.remove('hidden');
             }
             
+            // Memicu event 'input' pada search bar untuk me-render ulang tabel sesuai urutan baru
+            // dan filter yang sedang aktif
             searchInput.dispatchEvent(new Event('input'));
         });
 
-        // Memanggil renderTable setelah data diurutkan secara default
-        renderTable(allTransactions);
+        // --- Memulai Proses ---
+        loadData();
     });
 </script>
 
