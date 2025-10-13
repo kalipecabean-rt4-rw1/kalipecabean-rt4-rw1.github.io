@@ -20,11 +20,11 @@
                     type="text" 
                     id="searchInput" 
                     placeholder="Cari Keterangan atau No. Reff..." 
-                    class="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    class="w-full pl-4 pr-12 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                 <button 
                     id="sortButton" 
-                    class="absolute right-0 mr-2 p-1 text-gray-500 hover:text-blue-500 focus:outline-none"
+                    class="absolute right-0 mr-1.5 p-1.5 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors"
                     aria-label="Urutkan"
                 >
                     <svg id="sortIconDesc" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -56,15 +56,14 @@
     </div>
 
 <script>
+    // --- JavaScript tidak ada perubahan sama sekali ---
     document.addEventListener('DOMContentLoaded', function() {
 
-        // --- FUNGSI DATA CONTOH (Tidak ada perubahan) ---
         function generateSampleData() {
             const data = [];
             let currentSaldo = 2500000;
             const descriptionsIn = ["Iuran Warga", "Sumbangan Acara 17an", "Donasi Pembangunan", "Sewa Fasilitas RT"];
             const descriptionsOut = ["Beli ATK Rapat", "Biaya Kebersihan Lingkungan", "Konsumsi Rapat Warga", "Perbaikan Lampu Jalan", "Fotokopi Undangan"];
-            
             for (let i = 100; i > 0; i--) {
                 const isIncome = Math.random() > 0.4;
                 const date = new Date(2025, 9, 25 - Math.floor(i / 5));
@@ -89,8 +88,6 @@
         const searchInput = document.getElementById('searchInput');
         const sortButton = document.getElementById('sortButton');
         const tableBody = document.getElementById('transactionTableBody');
-        
-        // PERUBAHAN 2: Mendapatkan elemen ikon
         const sortIconDesc = document.getElementById('sortIconDesc');
         const sortIconAsc = document.getElementById('sortIconAsc');
 
@@ -137,7 +134,6 @@
                 return isDescending ? dateB - dateA : dateA - dateB;
             });
             
-            // PERUBAHAN 3: Mengganti teks tombol dengan menukar ikon
             if (isDescending) {
                 sortIconDesc.classList.remove('hidden');
                 sortIconAsc.classList.add('hidden');
