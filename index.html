@@ -1,214 +1,396 @@
 <!DOCTYPE html>
+
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Mutasi Rekening - POS RT RW</title>
-    <script src="https://cdn-tailwindcss.vercel.app/"></script>
+
+    <script src="https://cdn-tailwindcss.vercel.app/ "></script>
+
     <style>
         /* Menambahkan transisi untuk animasi fade-in yang mulus */
+
         #transactionTableBody tr {
+
             transition: opacity 0.5s ease-in-out;
+
         }
     </style>
+
 </head>
+
 <body class="bg-gray-100">
 
+
+
     <div class="w-full bg-white min-h-screen">
+
         <div class="p-4 border-b">
+
             <h1 class="text-xl font-bold text-gray-800">Penerimaan & Belanja</h1>
+
             <p class="text-sm text-gray-500">Project POS RT RW</p>
+
         </div>
+
+
 
         <div class="sticky top-0 bg-white z-10 p-4 border-b shadow-sm">
+
             <div class="relative flex items-center">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    placeholder="Cari Keterangan atau No. Reff..." 
-                    class="w-full pl-4 pr-12 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                <button 
-                    id="sortButton" 
+
+                <input type="text" id="searchInput" placeholder="Cari Keterangan atau No. Reff..."
+                    class="w-full pl-4 pr-12 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                <button id="sortButton"
                     class="absolute right-0 mr-1.5 p-1.5 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 hover:text-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors"
-                    aria-label="Urutkan"
-                >
-                    <svg id="sortIconDesc" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    aria-label="Urutkan">
+
+                    <svg id="sortIconDesc" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
+                        fill="currentColor">
+
+                        <path fill-rule="evenodd"
+                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+
                     </svg>
-                    <svg id="sortIconAsc" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clip-rule="evenodd" />
+
+                    <svg id="sortIconAsc" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" viewBox="0 0 20 20"
+                        fill="currentColor">
+
+                        <path fill-rule="evenodd"
+                            d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z"
+                            clip-rule="evenodd" />
+
                     </svg>
+
                 </button>
+
             </div>
+
         </div>
+
+
 
         <div class="overflow-x-auto">
+
             <table class="min-w-full text-sm">
+
                 <thead class="bg-gray-50">
+
                     <tr>
-                        <th class="p-3 text-center font-semibold text-gray-600">No.</th>
+
                         <th class="p-3 text-left font-semibold text-gray-600">Keterangan</th>
+
                         <th class="p-3 text-right font-semibold text-gray-600 whitespace-nowrap">Mutasi</th>
+
                         <th class="p-3 text-right font-semibold text-gray-600 whitespace-nowrap">Saldo</th>
+
                     </tr>
+
                 </thead>
+
                 <tbody id="transactionTableBody">
-                    </tbody>
+
+                </tbody>
+
             </table>
+
         </div>
+
     </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        
-        let allTransactions = [];
-        let isDescending = true;
-        const searchInput = document.getElementById('searchInput');
-        const sortButton = document.getElementById('sortButton');
-        const tableBody = document.getElementById('transactionTableBody');
-        const sortIconDesc = document.getElementById('sortIconDesc');
-        const sortIconAsc = document.getElementById('sortIconAsc');
-        
-        const dataUrl = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLj_mpeTgDxFPg5TntYsS0UUPtXoX7IG0G25RNyA6dMwifkG0hPI1HK3VRoKd7VhO8sRgF_ZHNHu7cSJjGKsOtu5MQWO2oYh9axj2ULfkzIjd_L2-SaaVj6ziW50FSaagihLqe7C0MCui7B4PQpADyXWxKqF2Drh3IHFLoifmzlGHSoHjW00sfT1si5Eq_iV0JwRYUcUc9CfBcHs4HOVtkkImGcZRQeh5wgF7JXoU8h-NWNFZKIK_1mAZjscZu_6kbbnZhFGc4rV6RSax-Xj1iyH6ioy6VyWcKptD5Xt&lib=MLLS5aBaAgAnNslygjriEtI_L-RvyYFNc';
 
-        // --- Fungsi Helper ---
-        const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-        const formatDate = (timestamp) => {
-            const date = new Date(timestamp);
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
-            return `${year}-${month}-${day} ${hours}:${minutes}`;
-        };
-        const delay = ms => new Promise(res => setTimeout(res, ms));
 
-        // --- Fungsi untuk Merender Tabel (Instan) ---
-        const renderTable = (transactions) => {
-            tableBody.innerHTML = '';
-            if (transactions.length === 0) {
-                 // PERUBAHAN 2: Mengubah colspan menjadi 4
-                tableBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
-                return;
-            }
-            // PERUBAHAN 3: Menambahkan 'index' untuk penomoran
-            transactions.forEach((trx, index) => {
-                const row = document.createElement('tr');
-                row.className = 'odd:bg-white even:bg-slate-100';
-                const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
-                const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
-                // Format nomor dengan 4 digit (misal: 0001)
-                const formattedNumber = String(index + 1).padStart(4, '0');
-                row.innerHTML = `
-                    <td class="p-3 align-top text-center text-gray-500">${formattedNumber}</td>
-                    <td class="p-3 align-top">
-                        <p class="text-xs text-gray-500">${trx.tanggal}</p>
-                        <p class="font-semibold text-gray-800">${trx.keterangan}</p>
-                        <p class="text-xs text-gray-400">${trx.noReff}</p>
-                    </td>
-                    <td class="p-3 text-right align-top whitespace-nowrap"><span class="font-semibold ${mutationClass}">${mutationPrefix} ${formatCurrency(trx.jumlah)}</span></td>
-                    <td class="p-3 text-right align-top whitespace-nowrap"><span class="text-gray-700">${formatCurrency(trx.saldo)}</span></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        };
+    <script>
 
-        // --- Fungsi Utama untuk Mengambil dan Memproses Data ---
-        async function loadData() {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="4" class="p-8 text-center text-gray-500">
-                        <div class="flex justify-center items-center space-x-2">
-                            <svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>Memuat data...</span>
-                        </div>
-                    </td>
-                </tr>`;
+        document.addEventListener('DOMContentLoaded', function () {
 
-            try {
-                const response = await fetch(dataUrl);
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                const rawData = await response.json();
 
-                allTransactions = rawData.map(item => ({
-                    tanggal: formatDate(item.TANGGAL), noReff: item['NO REFF'], keterangan: item.KETERANGAN,
-                    tipe: item.DEBET ? 'keluar' : 'masuk', jumlah: item.DEBET || item.KREDIT, saldo: item.SALDO
-                }));
-                
-                allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
-                
+            let allTransactions = [];
+
+            let isDescending = true;
+
+            const searchInput = document.getElementById('searchInput');
+
+            const sortButton = document.getElementById('sortButton');
+
+            const tableBody = document.getElementById('transactionTableBody');
+
+            const sortIconDesc = document.getElementById('sortIconDesc');
+
+            const sortIconAsc = document.getElementById('sortIconAsc');
+
+
+            const dataUrl = 'https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLj_mpeTgDxFPg5TntYsS0UUPtXoX7IG0G25RNyA6dMwifkG0hPI1HK3VRoKd7VhO8sRgF_ZHNHu7cSJjGKsOtu5MQWO2oYh9axj2ULfkzIjd_L2-SaaVj6ziW50FSaagihLqe7C0MCui7B4PQpADyXWxKqF2Drh3IHFLoifmzlGHSoHjW00sfT1si5Eq_iV0JwRYUcUc9CfBcHs4HOVtkkImGcZRQeh5wgF7JXoU8h-NWNFZKIK_1mAZjscZu_6kbbnZhFGc4rV6RSax-Xj1iyH6ioy6VyWcKptD5Xt&lib=MLLS5aBaAgAnNslygjriEtI_L-RvyYFNc';
+
+
+
+            // --- Fungsi Helper ---
+
+            const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+
+            const formatDate = (timestamp) => {
+
+                const date = new Date(timestamp);
+
+                const year = date.getFullYear();
+
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+
+                const day = String(date.getDate()).padStart(2, '0');
+
+                const hours = String(date.getHours()).padStart(2, '0');
+
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                return `${year}-${month}-${day} ${hours}:${minutes}`;
+
+            };
+
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
+
+
+            // --- Fungsi untuk Merender Tabel (Instan) ---
+
+            // Digunakan untuk pencarian dan pengurutan agar responsif
+
+            const renderTable = (transactions) => {
+
                 tableBody.innerHTML = '';
-                
-                if (allTransactions.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-gray-500">Tidak ada data transaksi.</td></tr>';
+
+                if (transactions.length === 0) {
+
+                    tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Data tidak ditemukan.</td></tr>';
+
                     return;
+
                 }
 
-                // PERUBAHAN 5: Menggunakan 'for...of' dengan index untuk penomoran
-                let index = 0;
-                for (const trx of allTransactions) {
+                transactions.forEach(trx => {
+
                     const row = document.createElement('tr');
+
                     row.className = 'odd:bg-white even:bg-slate-100';
-                    row.style.opacity = '0';
+
                     const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
+
                     const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
-                    const formattedNumber = String(index + 1).padStart(4, '0');
+
                     row.innerHTML = `
-                        <td class="p-3 align-top text-center text-gray-500">${formattedNumber}</td>
-                        <td class="p-3 align-top">
-                            <p class="text-xs text-gray-500">${trx.tanggal}</p>
-                            <p class="font-semibold text-gray-800">${trx.keterangan}</p>
-                            <p class="text-xs text-gray-400">${trx.noReff}</p>
-                        </td>
-                        <td class="p-3 text-right align-top whitespace-nowrap"><span class="font-semibold ${mutationClass}">${mutationPrefix} ${formatCurrency(trx.jumlah)}</span></td>
-                        <td class="p-3 text-right align-top whitespace-nowrap"><span class="text-gray-700">${formatCurrency(trx.saldo)}</span></td>
-                    `;
+
+<td class="p-3 align-top">
+
+<p class="text-xs text-gray-500">${trx.tanggal}</p>
+
+<p class="font-semibold text-gray-800">${trx.keterangan}</p>
+
+<p class="text-xs text-gray-400">${trx.noReff}</p>
+
+</td>
+
+<td class="p-3 text-right align-top whitespace-nowrap"><span class="font-semibold ${mutationClass}">${mutationPrefix} ${formatCurrency(trx.jumlah)}</span></td>
+
+<td class="p-3 text-right align-top whitespace-nowrap"><span class="text-gray-700">${formatCurrency(trx.saldo)}</span></td>
+
+`;
+
                     tableBody.appendChild(row);
-                    row.style.opacity = '1';
-                    
-                    index++; // Naikkan index untuk baris berikutnya
-                    await delay(50); // Mengurangi delay agar lebih cepat
+
+                });
+
+            };
+
+
+
+            // --- Fungsi Utama untuk Mengambil dan Memproses Data ---
+
+            async function loadData() {
+
+                // 1. Tampilkan indikator loading
+
+                tableBody.innerHTML = `
+
+<tr>
+
+<td colspan="3" class="p-8 text-center text-gray-500">
+
+<div class="flex justify-center items-center space-x-2">
+
+<svg class="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+
+<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+
+</svg>
+
+<span>Memuat data...</span>
+
+</div>
+
+</td>
+
+</tr>`;
+
+
+
+                try {
+
+                    const response = await fetch(dataUrl);
+
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                    const rawData = await response.json();
+
+
+
+                    allTransactions = rawData.map(item => ({
+
+                        tanggal: formatDate(item.TANGGAL), noReff: item['NO REFF'], keterangan: item.KETERANGAN,
+
+                        tipe: item.DEBET ? 'keluar' : 'masuk', jumlah: item.DEBET || item.KREDIT, saldo: item.SALDO
+
+                    }));
+
+
+                    allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
+
+
+                    // 2. Kosongkan tabel sebelum render parsial
+
+                    tableBody.innerHTML = '';
+
+
+                    if (allTransactions.length === 0) {
+
+                        tableBody.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-500">Tidak ada data transaksi.</td></tr>';
+
+                        return;
+
+                    }
+
+
+
+                    // 3. Render setiap baris dengan jeda (delay)
+
+                    for (const trx of allTransactions) {
+
+                        const row = document.createElement('tr');
+
+                        row.className = 'odd:bg-white even:bg-slate-100';
+
+                        row.style.opacity = '0'; // Set opacity awal ke 0 untuk animasi fade-in
+
+                        const mutationClass = trx.tipe === 'masuk' ? 'text-green-600' : 'text-red-600';
+
+                        const mutationPrefix = trx.tipe === 'masuk' ? '+' : '-';
+
+                        row.innerHTML = `
+
+<td class="p-3 align-top">
+
+<p class="text-xs text-gray-500">${trx.tanggal}</p>
+
+<p class="font-semibold text-gray-800">${trx.keterangan}</p>
+
+<p class="text-xs text-gray-400">${trx.noReff}</p>
+
+</td>
+
+<td class="p-3 text-right align-top whitespace-nowrap"><span class="font-semibold ${mutationClass}">${mutationPrefix} ${formatCurrency(trx.jumlah)}</span></td>
+
+<td class="p-3 text-right align-top whitespace-nowrap"><span class="text-gray-700">${formatCurrency(trx.saldo)}</span></td>
+
+`;
+
+                        tableBody.appendChild(row);
+
+                        row.style.opacity = '1'; // Ubah opacity ke 1 untuk memicu transisi fade-in
+
+
+                        // Jeda sebelum menampilkan item berikutnya
+
+                        await delay(300); // Jeda 300 milidetik
+
+                    }
+
+
+
+                } catch (error) {
+
+                    console.error("Gagal mengambil atau memproses data:", error);
+
+                    tableBody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-red-500">Gagal memuat data. Silakan coba lagi nanti.</td></tr>`;
+
                 }
 
-            } catch (error) {
-                console.error("Gagal mengambil atau memproses data:", error);
-                tableBody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-red-500">Gagal memuat data. Silakan coba lagi nanti.</td></tr>`;
             }
-        }
 
-        // --- Event Listeners ---
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            const filteredData = allTransactions.filter(trx => 
-                trx.keterangan.toLowerCase().includes(query) || 
-                trx.noReff.toLowerCase().includes(query)
-            );
-            renderTable(filteredData);
-        });
 
-        sortButton.addEventListener('click', function() {
-            isDescending = !isDescending;
-            allTransactions.sort((a, b) => {
-                const dateA = new Date(a.tanggal);
-                const dateB = new Date(b.tanggal);
-                return isDescending ? dateB - dateA : dateA - dateB;
+
+            // --- Event Listeners ---
+
+            searchInput.addEventListener('input', function () {
+
+                const query = this.value.toLowerCase();
+
+                const filteredData = allTransactions.filter(trx =>
+
+                    trx.keterangan.toLowerCase().includes(query) ||
+
+                    trx.noReff.toLowerCase().includes(query)
+
+                );
+
+                renderTable(filteredData); // Gunakan render instan untuk pencarian
+
             });
-            
-            sortIconDesc.classList.toggle('hidden', !isDescending);
-            sortIconAsc.classList.toggle('hidden', isDescending);
-            
-            searchInput.dispatchEvent(new Event('input'));
+
+
+
+            sortButton.addEventListener('click', function () {
+
+                isDescending = !isDescending;
+
+                allTransactions.sort((a, b) => {
+
+                    const dateA = new Date(a.tanggal);
+
+                    const dateB = new Date(b.tanggal);
+
+                    return isDescending ? dateB - dateA : dateA - dateB;
+
+                });
+
+
+                sortIconDesc.classList.toggle('hidden', !isDescending);
+
+                sortIconAsc.classList.toggle('hidden', isDescending);
+
+
+                searchInput.dispatchEvent(new Event('input'));
+
+            });
+
+
+
+            // --- Memulai Proses ---
+
+            loadData();
+
         });
 
-        // --- Memulai Proses ---
-        loadData();
-    });
-</script>
+    </script>
+
+
 
 </body>
+
 </html>
