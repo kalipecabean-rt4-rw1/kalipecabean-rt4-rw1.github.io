@@ -56,7 +56,6 @@
     </div>
 
 <script>
-    // --- JavaScript tidak ada perubahan sama sekali ---
     document.addEventListener('DOMContentLoaded', function() {
 
         function generateSampleData() {
@@ -64,6 +63,7 @@
             let currentSaldo = 2500000;
             const descriptionsIn = ["Iuran Warga", "Sumbangan Acara 17an", "Donasi Pembangunan", "Sewa Fasilitas RT"];
             const descriptionsOut = ["Beli ATK Rapat", "Biaya Kebersihan Lingkungan", "Konsumsi Rapat Warga", "Perbaikan Lampu Jalan", "Fotokopi Undangan"];
+            
             for (let i = 100; i > 0; i--) {
                 const isIncome = Math.random() > 0.4;
                 const date = new Date(2025, 9, 25 - Math.floor(i / 5));
@@ -80,7 +80,8 @@
                     saldo: currentSaldo
                 });
             }
-            return data.reverse();
+            // PERUBAHAN 1: Menghapus .reverse() agar fungsi ini hanya membuat data
+            return data;
         }
 
         const allTransactions = generateSampleData();
@@ -90,6 +91,10 @@
         const tableBody = document.getElementById('transactionTableBody');
         const sortIconDesc = document.getElementById('sortIconDesc');
         const sortIconAsc = document.getElementById('sortIconAsc');
+
+        // PERUBAHAN 2: Menambahkan pengurutan default secara eksplisit di sini
+        // Ini memastikan data SELALU diurutkan descending saat pertama kali dimuat
+        allTransactions.sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
         const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
 
@@ -145,6 +150,7 @@
             searchInput.dispatchEvent(new Event('input'));
         });
 
+        // Memanggil renderTable setelah data diurutkan secara default
         renderTable(allTransactions);
     });
 </script>
