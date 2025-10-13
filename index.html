@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mutasi Rekening - POS RT RW</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn-tailwindcss.vercel.app/"></script>
 </head>
-<body class="bg-gray-100 p-4">
+<body class="bg-gray-100">
 
-    <div class="container mx-auto max-w-md bg-white rounded-lg shadow-md relative">
+    <div class="w-full bg-white">
         <div class="p-4 border-b">
             <h1 class="text-xl font-bold text-gray-800">Penerimaan & Belanja</h1>
             <p class="text-sm text-gray-500">Project POS RT RW</p>
@@ -28,6 +28,7 @@
                 Urutkan: Terlama
             </button>
         </div>
+
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="bg-gray-50">
@@ -83,10 +84,9 @@
             return data.reverse();
         }
 
-        // --- BAGIAN UTAMA SCRIPT ---
+        // --- BAGIAN UTAMA SCRIPT (Tidak ada perubahan) ---
         const allTransactions = generateSampleData();
         let isDescending = true;
-
         const searchInput = document.getElementById('searchInput');
         const sortButton = document.getElementById('sortButton');
         const tableBody = document.getElementById('transactionTableBody');
